@@ -1,0 +1,20 @@
+@startuml flow
+
+actor user
+
+user -> frontend: select landmark
+
+frontend -> backend: POST /api/v1/describe?location='<location>'
+backend -> chatgpt: Generate description
+chatgpt -> backend: return description
+backend -> elevenlabs : Generate audio for description
+elevenlabs -> backend : return audio file
+backend -> backend : store description and audio file
+backend -> frontend : return unique id (uuid)
+frontend -> backend: GET /api/v1/text/{uuid}
+backend -> frontend: return description
+frontend -> backend: GET /api/v1/audio/{uuid}
+backend -> frontend: return audio file
+
+@enduml
+

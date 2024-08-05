@@ -1,0 +1,138 @@
+openapi: 3.0.3
+info:
+  title: Drive Tales Backend APIs
+  description:
+    Nodejs express backend APIs for Drive Tales app
+  version: 0.0.1
+
+servers:
+  - url: /api/v1
+
+tags:
+  - name: describe
+    description: Describe a location via AIs
+  - name: text-description
+    description: Text descriptions
+  - name: audio-description
+    description: Audio descriptions
+
+paths:
+  /describe:
+    post:
+      tags:
+        - describe
+      summary: Generate a uuid for a description of a locations
+      description: Generate a text and audio description for a location using the ChatGpt and Elevenlabs APIs
+      parameters:
+        - name: name
+          in: query
+          description: Name or short description of a location
+          example: Metropolitan Cathedral, Timisoara
+          schema:
+            type: string
+        - name: type
+          in: query
+          example: historical
+          description: Name or short description of a location
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Generated descriptions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UniqueId'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+
+  /text/{uuid}:
+    get:
+      tags:
+      - text-description
+      summary: Get text description
+      description: Obtain the text description generated for an obtained unique id
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          description: UUID obtained from /describe
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Text description
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Text'
+        '404':
+          description: Resource does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceNotFound'
+
+  /audio/{uuid}:
+    get:
+      tags:
+      - audio-description
+      summary: Get audio description
+      description: Obtain the audio description generated for an obtained unique id
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          description: UUID obtained from /describe
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Audio description
+          content:
+            audio/mpeg:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Resource does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceNotFound'
+
+
+components:
+  schemas:
+    Text:
+      required:
+        - description
+      properties:
+        description:
+          type: string
+          example: 'The Golden Gate Bridge is a suspension bridge spanning the Golden Gate, the one-mile-wide strait connecting San Francisco Bay and the Pacific Ocean.'
+    ServerError:
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          example: 'ChatGPT Key is invalid'
+    ResourceNotFound:
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          example: 'Invalid uuid'
+    UniqueId:
+      required:
+        - uuid
+      properties:
+        uuid:
+          type: string
+          example: '85a41f50-85a7-4f01-ad7b-e3c5cfb93cfb'

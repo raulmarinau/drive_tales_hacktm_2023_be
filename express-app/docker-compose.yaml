@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  app:
+    image: express-app_app:latest # Taking the latest images of the app
+#    build:  # Should build the image every time
+#      context: .
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./:/app  # Putting the code in the container
